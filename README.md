@@ -1,3 +1,3 @@
-# Dominion Tournamnets
+# Dominion Tournaments
 
 A website for managing Dominion tournaments and keep track of statistics.
