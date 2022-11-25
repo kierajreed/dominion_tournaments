@@ -6,16 +6,16 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
+      <li class="nav-item {{ ifeq path "/tournaments" "active" }}">
         <a class="nav-link" href="/tournaments">Tournaments</a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item {{ ifeq path "/players" "active" }}">
         <a class="nav-link" href="/players">Players</a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item {{ ifeq path "/calendar" "active" }}">
         <a class="nav-link" href="/calendar">Calendar</a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item {{ ifeq path "/about" "active" }}">
         <a class="nav-link" href="/about">About</a>
       </li>
     </ul>

@@ -4,8 +4,9 @@
 #[macro_use] extern crate serde_derive;
 
 use rocket::Request;
-use rocket_contrib::templates::Template;
+use rocket_contrib::templates::{Template, handlebars};
 use rocket_contrib::serve::StaticFiles;
+use handlebars::{Helper, Handlebars, Context, RenderContext, Output, HelperResult, JsonRender};
 
 #[derive(Serialize)]
 struct TemplateContext {
@@ -15,7 +16,7 @@ struct TemplateContext {
     parent: &'static str,
 }
 
-fn render_page<S: Into<String>>(template: &str, title: S, path: S, data: Option<String>) -> Template {
+fn render_page<S: Into<String>, T: Into<String>>(template: &str, title: S, path: T, data: Option<String>) -> Template {
     Template::render(format!("pages/{}", template), &TemplateContext {
         title: title.into(),
         path: path.into(),
@@ -57,12 +58,34 @@ fn not_found(req: &Request) -> Template {
     Template::render("error/404", &map)
 }
 
+fn eq_helper(
+    h: &Helper,
+    _: &Handlebars,
+    _: &Context,
+    _: &mut RenderContext,
+    out: &mut dyn Output
+) -> HelperResult {
+    if let Some(first) = h.param(0) {
+        if let Some(second) = h.param(1) {
+            if *(&first.value().render().eq(&second.value().render())) {
+                if let Some(value) = h.param(2) {
+                    out.write(&value.value().render())?;
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
 fn build_rocket() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", routes![index, about, calendar, players, tournaments])
         .mount("/", StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/static")))
         .register(catchers![not_found])
-        .attach(Template::fairing())
+        .attach(Template::custom(|engines| {
+            engines.handlebars.register_helper("ifeq", Box::new(eq_helper));
+        }))
 }
 
 fn main() {
