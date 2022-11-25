@@ -7,6 +7,7 @@ use rocket::Request;
 use rocket_contrib::templates::{Template, handlebars};
 use rocket_contrib::serve::StaticFiles;
 use handlebars::{Helper, Handlebars, Context, RenderContext, Output, HelperResult, JsonRender};
+mod tourney_db;
 
 #[derive(Serialize)]
 struct TemplateContext {
@@ -78,5 +79,7 @@ fn build_rocket() -> rocket::Rocket {
 }
 
 fn main() {
+    tourney_db::init().err();
+
     build_rocket().launch();
 }
