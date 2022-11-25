@@ -1,4 +1,4 @@
-use rusqlite::{Connection, Result};
+use rusqlite::Connection;
 
 fn get_tables_to_create() -> Vec<&'static str> {
     vec![
@@ -96,7 +96,7 @@ fn close_db(connection: Connection) {
     }
 }
 
-pub fn init() -> Result<()> {
+pub fn init() {
     let connection = open_db();
 
     for create_table in get_tables_to_create() {
@@ -108,5 +108,5 @@ pub fn init() -> Result<()> {
 
     close_db(connection);
 
-    Ok(())
+    println!("[DB] Database initialised successfully!");
 }

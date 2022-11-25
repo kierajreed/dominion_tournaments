@@ -79,7 +79,7 @@ fn build_rocket() -> rocket::Rocket {
 }
 
 fn main() {
-    tourney_db::init().err();
+    tourney_db::init();
 
     build_rocket().launch();
 }
