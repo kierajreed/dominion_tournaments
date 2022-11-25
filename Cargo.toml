@@ -1,8 +1,12 @@
 [package]
-name = "DominionTournaments"
+name = "dominion_tournaments"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+rusqlite = { version = "0.28.0", features = ["bundled"] }
+rocket = "0.4.10"
+rocket_contrib = { version = "0.4.10", features = ["json", "serve", "handlebars_templates"] }
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
