@@ -30,11 +30,6 @@ fn index() -> Template {
     render_page("index", "Dominion Tournaments", "/", None)
 }
 
-#[get("/about")]
-fn about() -> Template {
-    render_page("about", "About", "/about", None)
-}
-
 #[get("/calendar")]
 fn calendar() -> Template {
     render_page("calendar", "Match Calendar", "/calendar", None)
@@ -74,7 +69,7 @@ fn eq_helper(h: &Helper, _: &Handlebars, _: &Context, _: &mut RenderContext, out
 
 fn build_rocket() -> rocket::Rocket {
     rocket::ignite()
-        .mount("/", routes![index, about, calendar, players, tournaments])
+        .mount("/", routes![index, calendar, players, tournaments])
         .mount("/", StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/static")))
         .register(catchers![not_found])
         .attach(Template::custom(|engines| {
