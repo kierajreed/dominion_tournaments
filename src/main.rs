@@ -7,17 +7,19 @@ use rocket::Request;
 use rocket_contrib::templates::{Template, handlebars};
 use rocket_contrib::serve::StaticFiles;
 use handlebars::{Helper, Handlebars, Context, RenderContext, Output, HelperResult, JsonRender};
+use serde::Serialize;
 mod tourney_db;
 
 #[derive(Serialize)]
-struct TemplateContext {
+struct TemplateContext<C: Serialize> {
     title: String,
     path: String,
-    data: Option<String>,
+    data: Option<C>,
     parent: &'static str,
 }
 
-fn render_page<S: Into<String>, T: Into<String>>(template: &str, title: S, path: T, data: Option<String>) -> Template {
+fn render_page<S, T, U>(template: &str, title: S, path: T, data: Option<U>) -> Template
+    where S: Into<String>, T: Into<String>, U: Serialize {
     Template::render(format!("pages/{}", template), &TemplateContext {
         title: title.into(),
         path: path.into(),
@@ -25,25 +27,33 @@ fn render_page<S: Into<String>, T: Into<String>>(template: &str, title: S, path:
         parent: "layouts/base",
     })
 }
+fn render_page_with_data<S, T, U>(template: &str, title: S, path: T, data: U) -> Template
+    where S: Into<String>, T: Into<String>, U: Serialize {
+    render_page(template, title, path, Some(data))
+}
+fn render_page_dataless<S, T>(template: &str, title: S, path: T) -> Template 
+    where S: Into<String>, T: Into<String> {
+    render_page(template, title, path, None::<String>)
+}
 
 #[get("/")]
 fn index() -> Template {
-    render_page("index", "Dominion Tournaments", "/", None)
+    render_page_dataless("index", "Dominion Tournaments", "/")
 }
 
 #[get("/calendar")]
 fn calendar() -> Template {
-    render_page("calendar", "Match Calendar", "/calendar", None)
+    render_page_dataless("calendar", "Match Calendar", "/calendar")
 }
 
 #[get("/players")]
 fn players() -> Template {
-    render_page("players", "Players", "/players", None)
+    render_page_dataless("players", "Players", "/players")
 }
 
 #[get("/tournaments")]
 fn tournaments() -> Template {
-    render_page("tournaments", "Tournaments", "/tournaments", None)
+    render_page_with_data("tournaments", "Tournaments", "/tournaments", tourney_db::get_tournaments())
 }
 
 #[catch(404)]

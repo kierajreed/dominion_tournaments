@@ -13,7 +13,9 @@ fn get_tables_to_create() -> Vec<&'static str> {
             name TEXT,
             description TEXT,
             rules TEXT,
-            format_override TEXT
+            format_override TEXT,
+            start_date INTEGER,
+            end_date INTEGER
         ) WITHOUT ROWID",
         "CREATE TABLE IF NOT EXISTS formats (
             format_type TEXT
@@ -89,12 +91,6 @@ fn open_db() -> Connection {
         Err(err) => panic!("[DB] Failed to open connection: {}", err),
     }
 }
-fn close_db(connection: Connection) {
-    match connection.close() {
-        Ok(_) => println!("[DB] Connection closed successfully."),
-        Err(err) => println!("[DB] Failed to close connection! {}", err.1),
-    }
-}
 
 pub fn init() {
     let connection = open_db();
@@ -106,7 +102,58 @@ pub fn init() {
         }
     }
 
-    close_db(connection);
-
     println!("[DB] Database initialised successfully!");
+}
+
+#[derive(Debug, Serialize)]
+pub struct Player {
+    id: i64,
+    discord_id: String,
+    discord_name: String,
+    shuffleit_name: String
+}
+
+#[derive(Debug, Serialize)]
+pub struct Tournament {
+    id: i64,
+    name: String,
+    description: String,
+    rules: Option<String>,
+    format_override: Option<String>,
+    start_date: Option<i64>,
+    end_date: Option<i64>
+}
+
+pub fn get_players() -> Vec<Player> {
+    let connection = open_db();
+
+    let mut statement = connection.prepare("SELECT * FROM players").unwrap();
+    let players: Vec<Player> = statement.query_map([], |row| {
+        Ok(Player {
+            id: row.get(0)?,
+            discord_id: row.get(1)?,
+            discord_name: row.get(2)?,
+            shuffleit_name: row.get(3)?,
+        })
+    }).unwrap().map(|t| { t.unwrap() }).collect();
+
+    players
+}
+pub fn get_tournaments() -> Vec<Tournament> {
+    let connection = open_db();
+
+    let mut statement = connection.prepare("SELECT * FROM tournaments").unwrap();
+    let tournaments = statement.query_map([], |row| {
+        Ok(Tournament {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            description: row.get(2)?,
+            rules: row.get(3)?,
+            format_override: row.get(4)?,
+            start_date: row.get(5)?,
+            end_date: row.get(6)?,
+        })
+    }).unwrap().map(|t| { t.unwrap() }).collect();
+
+    tournaments
 }
