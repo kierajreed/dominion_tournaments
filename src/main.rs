@@ -58,13 +58,7 @@ fn not_found(req: &Request) -> Template {
     Template::render("error/404", &map)
 }
 
-fn eq_helper(
-    h: &Helper,
-    _: &Handlebars,
-    _: &Context,
-    _: &mut RenderContext,
-    out: &mut dyn Output
-) -> HelperResult {
+fn eq_helper(h: &Helper, _: &Handlebars, _: &Context, _: &mut RenderContext, out: &mut dyn Output) -> HelperResult {
     if let Some(first) = h.param(0) {
         if let Some(second) = h.param(1) {
             if *(&first.value().render().eq(&second.value().render())) {
